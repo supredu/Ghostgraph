@@ -12,7 +12,7 @@ contract NFTMarketplace is ERC721URIStorage {
     Counters.Counter private _tokenIds;
     Counters.Counter private _itemsList;
 
-    uint256 listingPrice = 0.025 ether;
+    uint256 listingPrice = 0.005 ether;
     address payable owner;
 
     mapping(uint256 => MarketItem) private idToMarketItem;
@@ -35,10 +35,20 @@ contract NFTMarketplace is ERC721URIStorage {
 
     event PriceChanged(
       uint256 indexed tokenId,
-      uint256 price
+      uint256 indexed price
     );
     event ListingPriceUpdated(
       uint listingPrice
+    );
+    event UnListToken(
+      uint256 indexed tokenId,
+      address seller,
+      address owner
+    );
+    event Buy(
+      uint256 indexed tokenId,
+      address seller,
+      address owner
     );
     constructor() ERC721("Kun Tokens", "Kun") {
       owner = payable(msg.sender);
@@ -81,6 +91,11 @@ contract NFTMarketplace is ERC721URIStorage {
       idToMarketItem[tokenId].seller = payable(address(0));
       idToMarketItem[tokenId].owner = payable(msg.sender);
        _transfer(address(this), msg.sender, tokenId);
+       emit UnListToken(
+        tokenId,
+        address(0),
+        msg.sender
+       );
       return true;
     }
     /* Changes the price of token on list */
@@ -143,6 +158,11 @@ contract NFTMarketplace is ERC721URIStorage {
       _transfer(address(this), msg.sender, tokenId);
       payable(owner).transfer(listingPrice);
       payable(seller).transfer(msg.value);
+      emit Buy(
+      tokenId,
+      address(0),
+      msg.sender
+    );
     }
 
     /* Returns all unsold market items */
