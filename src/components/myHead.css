@@ -34,3 +34,21 @@
 .iconitem div:hover{
     box-shadow: 1px 1px 5px 5px deepskyblue;
 }
+
+.wallets{
+    align-items: center;
+    display: inline-flex;
+}
+
+.wallet .img{
+    margin-right: 16px;
+    align-self: center;
+}
+.walletli{
+    border-bottom: 1px solid rgb(227,227,227);
+}
+
+.wallet .font{
+    order: 3;
+    flex: 1 1 auto;
+}
