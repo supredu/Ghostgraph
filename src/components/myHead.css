@@ -21,7 +21,7 @@
     display: flex;
     float:right;
     position: absolute;
-    right: 0px;
+    right: 100px;
 }
 .iconitem{
     align-items: center;

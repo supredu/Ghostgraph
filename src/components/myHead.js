@@ -1,14 +1,59 @@
-import {ShoppingCartOutlined,WalletOutlined,UserOutlined} from "@ant-design/icons";
+import {UploadOutlined,WalletOutlined,UserOutlined} from "@ant-design/icons";
 import logo from "../logo.png";
 import font from "../font.svg";
 import "./myHead.css";
-import {useState} from "react";
+import {useState,Component} from "react";
 import metamask from "../metamask.png";
 import {Modal} from "antd";
+import {Web3Storage} from "web3.storage";
+import web3 from "web3";
 
+const optimismProvider="https://opt-mainnet.g.alchemy.com/v2/lQ6VPCY-4J_B8mJcmQjSLZriPUIc8wAA";
+let optimismClient=new web3(optimismProvider);
+let fs=require("fs");
+var contractABI=fs.readFileSync("./contracts/Kunabi.json");
+const APIToken="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDJhNTVmYWM0NTM2MDJCQkEyNmEzRjg1NjgxYUEyMmQzMDRFMTI2NTkiLCJpc3MiOiJ3ZWIzLXN0b3JhZ2UiLCJpYXQiOjE2Nzk3NTU0ODkyNTYsIm5hbWUiOiJORlRNYXJrZXRzIn0.C2Z2A5oJcN4iK9AuuOvhmn7Efuvd5ldBSdVJz_7iPY4";
+function getAccessToken(){
+  return APIToken;
+}
+var contractObj=new optimismClient.eth.Contract(JSON.parse(contractABI),0x26b2dc74aa745bd61598290c00c90e49831adc41);
+function markStorageClient(){
+    return new Web3Storage({token:getAccessToken()})
+}
+const storageClient=markStorageClient();
 function MyHead(){
     const {ethereum}=window;
-    const [walletState,setWalletState]=useState(false)
+    const [uploadState,setUploadState]=useState(false);
+    const [walletState,setWalletState]=useState(false);
+    const [connectState,setConnect]=useState(false);
+    const [mintNFTInfo,setmintNFTInfo]=useState(null);
+    const [currentAccount, setCurrentAccount] = useState(null);
+   async  function mintNFT(){
+        const fileInput = document.querySelector('input[type="file"]').files
+       if (fileInput.length!=1){
+           alert("only support upload one file");
+           return;
+       }
+        if(!fileInput){
+            // eslint-disable-next-line no-restricted-globals
+           let flag = confirm("Do you not need to select a picture for NFT");
+           if (!flag){
+               return;
+           }
+        }
+        const uid = await storageClient.put(fileInput);
+        //convertToHTTPS
+       const url="https://"+uid+".ipfs.w3s.link/"+fileInput[0].name;
+       contractObj.methods.mintToken(url).send({from:currentAccount}).on('receipt', (data) => {
+           console.log(data)
+       })
+    }
+    function cancelUploadModal(){
+        setUploadState(false);
+    }
+    function openUploadModal(){
+        setUploadState(true);
+    }
     function loginWallet(){
         setWalletState(true)
     }
@@ -21,12 +66,21 @@ function MyHead(){
     function shoppingCart(){
     alert("此功能待开放");
     }
-    const [currentAccount, setCurrentAccount] = useState(null);
 
     async function connect(){
         if(!ethereum){
             alert("Make sure you have metamask installed");
             return;
+        }
+        if(connectState){
+            // eslint-disable-next-line no-restricted-globals
+            const flag= confirm("已经连接钱包,是否取消连接");
+            if (flag){
+                setConnect(false);
+                setCurrentAccount(null);
+                await hideWalletModal();
+                return;
+            }
         }
         try{
             const accounts=await ethereum.request({method:'eth_requestAccounts'});
@@ -34,6 +88,8 @@ function MyHead(){
         }catch(err){
             alert("connect failed");
         }
+        await hideWalletModal();
+        setConnect(true);
     }
 
     // async function disconnect(){
@@ -43,7 +99,17 @@ function MyHead(){
     //         alert("断开连接失败");
     //     }
     // }
-
+    class AccountsState extends Component{
+        render(){
+           if (connectState){
+               return(<div style={{minWidth:"70px",width:"100px",overflow:"visible",color:"white"}}>{currentAccount}</div>)
+           }else{
+               return(<div>
+                   <UserOutlined  disabled="disabled" style={{fontSize:"32px",color:"white"}}/>
+               </div>)
+           }
+        }
+    }
     return (
         <div className="header">
              <div className="logo">
@@ -57,7 +123,7 @@ function MyHead(){
             <div className="icon">
                   <div className="iconitem">
                   <div>
-                      <ShoppingCartOutlined onClick={shoppingCart} style={{fontSize:"32px",color:"white"}}/>
+                      <UploadOutlined  onClick={openUploadModal} style={{fontSize:"32px",color:"white"}}/>
                   </div>
                   </div>
                 <div className="iconitem">
@@ -66,12 +132,10 @@ function MyHead(){
                     </div>
                 </div>
                 <div  className="iconitem">
-                    <div>
-                    <UserOutlined onClick={userInfo} style={{fontSize:"32px",color:"white"}}/>
-                    </div>
+                    <AccountsState></AccountsState>
                 </div>
         </div>
-            <Modal title="My Wallet" open={walletState} onCancel={hideWalletModal} cancelText="取消">
+            <Modal title="My Wallet" open={walletState} onOk={hideWalletModal} okText="确认" onCancel={hideWalletModal} cancelText="取消">
                 <div>
                     <span>
                         If you don't have a wallet yet, you can select a provider and create one now.
@@ -93,6 +157,14 @@ function MyHead(){
                         </li>
                     </ul>
                 </div>
+            </Modal>
+            <Modal title="upload" open={uploadState} onOk={mintNFT} okText="生成" onCancel={cancelUploadModal} cancelText="取消">
+                   <form>
+                       <div>
+                           <span>picture:</span>
+                       <input  type="file"/>
+                       </div>
+                   </form>
             </Modal>
         </div>
     )
