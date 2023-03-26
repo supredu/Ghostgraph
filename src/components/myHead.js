@@ -4,9 +4,10 @@ import font from "../font.svg";
 import "./myHead.css";
 import {useState,Component} from "react";
 import metamask from "../metamask.png";
-import {Modal} from "antd";
+import {Modal,Spin} from "antd";
 import {Web3Storage} from "web3.storage";
-import web3 from "web3";
+var web3=require("web3")
+// import web3 from "web3";
 
 // import { Network, Alchemy } from 'alchemy-sdk';
 // const optimismProvider="https://opt-mainnet.g.alchemy.com/v2/lQ6VPCY-4J_B8mJcmQjSLZriPUIc8wAA";
@@ -15,7 +16,7 @@ import web3 from "web3";
 //     apiKey: optimismProvider, // Replace with your Alchemy API Key.
 //     network: Network.OPT_MAINNET, // Replace with your network.
 // };
-let optimismClient=new web3("https://opt-mainnet.g.alchemy.com/v2/lQ6VPCY-4J_B8mJcmQjSLZriPUIc8wAA")
+let optimismClient=new web3("https://eth-goerli.g.alchemy.com/v2/V8xOVFRIfytaCCpF1CGgAAx1X0nxuY-s")
 
 // let optimismClient=new Alchemy(settings);
 var contractABI="[\n" +
@@ -685,7 +686,7 @@ const APIToken="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDJ
 function getAccessToken(){
   return APIToken;
 }
-var contractObj=new optimismClient.eth.Contract(JSON.parse(contractABI),"0x26b2dc74aa745bd61598290c00c90e49831adc41");
+var contractObj=new optimismClient.eth.Contract(JSON.parse(contractABI),"0x26B2DC74Aa745bd61598290C00c90e49831ADc41");
 function markStorageClient(){
     return new Web3Storage({token:getAccessToken()})
 }
@@ -696,13 +697,17 @@ function MyHead(){
     const [walletState,setWalletState]=useState(false);
     const [connectState,setConnect]=useState(false);
     const [mintNFTInfo,setmintNFTInfo]=useState(null);
+    const [loading,setLoading]=useState(false)
     const [currentAccount, setCurrentAccount] = useState(null);
    async  function mintNFT(){
+        setLoading(true)
        console.log(currentAccount)
        if(!connectState){
            alert("请先进行登录");
            setWalletState(true);
            setUploadState(false);
+           setLoading(false)
+           return;
        }
         const fileInput = document.querySelector('input[type="file"]').files
        if (fileInput.length!=1){
@@ -717,11 +722,37 @@ function MyHead(){
            }
         }
         const uid = await storageClient.put(fileInput);
+        console.log(contractObj.methods)
         //convertToHTTPS
        const url="https://"+uid+".ipfs.w3s.link/"+fileInput[0].name;
-       await contractObj.methods.mintToken(url).send({from:currentAccount}).on('receipt', (data) => {
-           console.log(data)
+       const method = 'eth_sendTransaction';
+       let data = web3.eth.abi.encodeFunctionCall({
+           name: "mintToken",
+           type: "function",
+           inputs: [url],
+           outputs: [],
+       }, []);
+       const parameters = [{
+           from: currentAccount,
+           to: "0x26B2DC74Aa745bd61598290C00c90e49831ADc41",
+           data: data
+       }]
+       const from = currentAccount;
+       const payload = {
+           method: method,
+           params: parameters,
+           from: from,
+       }
+       ethereum.send(payload,function (error,result){
+           console.log(result)
+           if (error!=null){
+               alert("create nft error")
+               console.log(error);
+               return
+           }
+           console.log(result)
        })
+       setLoading(false)
     }
     function cancelUploadModal(){
         setUploadState(false);
@@ -741,7 +772,6 @@ function MyHead(){
     function shoppingCart(){
     alert("此功能待开放");
     }
-
     async function connect(){
         if(!ethereum){
             alert("Make sure you have metamask installed");
@@ -835,12 +865,14 @@ function MyHead(){
                 </div>
             </Modal>
             <Modal title="upload" open={uploadState} onOk={mintNFT} okText="生成" onCancel={cancelUploadModal} cancelText="取消">
+                <Spin spinning={loading}>
                    <form>
                        <div>
                            <span>picture:</span>
                        <input  type="file"/>
                        </div>
                    </form>
+                    </Spin>
             </Modal>
         </div>
     )

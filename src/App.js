@@ -2,7 +2,7 @@ import "./App.css";
 import MyHead from "./components/myHead";
 import {useState} from "react";
 import  {createClient}from "@urql/core";
-import {Modal} from "antd";
+import {Modal,Spin} from "antd";
 const APIURL="https://api.studio.thegraph.com/query/43728/kun/v0.2";
 const client=createClient({
     url:APIURL
@@ -10,10 +10,11 @@ const client=createClient({
 
  function App() {
      const [nftList,setNFTList]= useState([]);
+     const [loading,setLoading]=useState(false)
      initNfts();
     const [currentNFTInfo,setCurrentNFTInfo]=useState(null);
     const [openNFTModal,setOpenNFTModal]=useState(false);
-    const [searchId,setSearchId]=useState(1);
+    const [searchId,setSearchId]=useState("");
     function openModalNFT(){
         setOpenNFTModal(true);
     }
@@ -42,8 +43,10 @@ const client=createClient({
             console.log(nftList)
         });
     }
+    function handleSeachCondition(v){
+        setSearchId(v.target.value);
+    }
   async  function searchById(){
-        console.log(searchId)
         if (!searchId||(!Number.isInteger(searchId))){
             alert("请输入正确的id");
             return;
@@ -123,16 +126,14 @@ const client=createClient({
               <span style={{fontSize:"25px"}}>
               Filter:
               </span>
-              <input type="text" placeholder="please input the NFTID which you want to search" style={{minWidth:"400px",minHeight:"25px"}} defaultValue={searchId} onChange={value=>{
-                  setSearchId(value)
-              }}/>
+              <input type="text" style={{minWidth:"400px",minHeight:"25px"}} value={searchId}  autoComplete="off" onChange={handleSeachCondition}/>
               <button style={{minWidth:"50px",minHeight:"25px",backgroundColor:"skyblue"}} onClick={searchById}>
                   query
               </button>
           </div>
-          <div id="sortWay">
-              <span style={{minWidth:"50px",minHeight:"25px",backgroundColor:"skyblue",}}>sort:</span>
-              <label style={{minWidth:"50px",minHeight:"25px",backgroundColor:"skyblue",}}>
+          <div id="sortWay" style={{marginLeft:"100px", fontSize:"25px"}}>
+              <span style={{minWidth:"50px",minHeight:"25px",backgroundColor:"skyblue",marginRight:"50px"}}>sort:</span>
+              <label style={{minWidth:"50px",minHeight:"25px",backgroundColor:"skyblue",marginRight:"50px"}}>
                   <input type="radio" name="select" select="oderBy: price" defaultChecked="true" onClick={sortNFTS}/>prices
               </label>
               <label style={{minWidth:"50px",minHeight:"25px",backgroundColor:"skyblue"}}>
