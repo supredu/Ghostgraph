@@ -8,15 +8,684 @@ import {Modal} from "antd";
 import {Web3Storage} from "web3.storage";
 import web3 from "web3";
 
-const optimismProvider="https://opt-mainnet.g.alchemy.com/v2/lQ6VPCY-4J_B8mJcmQjSLZriPUIc8wAA";
-let optimismClient=new web3(optimismProvider);
-let fs=require("fs");
-var contractABI=fs.readFileSync("./contracts/Kunabi.json");
+// import { Network, Alchemy } from 'alchemy-sdk';
+// const optimismProvider="https://opt-mainnet.g.alchemy.com/v2/lQ6VPCY-4J_B8mJcmQjSLZriPUIc8wAA";
+// // Optional Config object, but defaults to demo api-key and eth-mainnet.
+// const settings = {
+//     apiKey: optimismProvider, // Replace with your Alchemy API Key.
+//     network: Network.OPT_MAINNET, // Replace with your network.
+// };
+let optimismClient=new web3("https://opt-mainnet.g.alchemy.com/v2/lQ6VPCY-4J_B8mJcmQjSLZriPUIc8wAA")
+
+// let optimismClient=new Alchemy(settings);
+var contractABI="[\n" +
+    "\t{\n" +
+    "\t\t\"inputs\": [],\n" +
+    "\t\t\"stateMutability\": \"nonpayable\",\n" +
+    "\t\t\"type\": \"constructor\"\n" +
+    "\t},\n" +
+    "\t{\n" +
+    "\t\t\"anonymous\": false,\n" +
+    "\t\t\"inputs\": [\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"indexed\": true,\n" +
+    "\t\t\t\t\"internalType\": \"address\",\n" +
+    "\t\t\t\t\"name\": \"owner\",\n" +
+    "\t\t\t\t\"type\": \"address\"\n" +
+    "\t\t\t},\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"indexed\": true,\n" +
+    "\t\t\t\t\"internalType\": \"address\",\n" +
+    "\t\t\t\t\"name\": \"approved\",\n" +
+    "\t\t\t\t\"type\": \"address\"\n" +
+    "\t\t\t},\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"indexed\": true,\n" +
+    "\t\t\t\t\"internalType\": \"uint256\",\n" +
+    "\t\t\t\t\"name\": \"tokenId\",\n" +
+    "\t\t\t\t\"type\": \"uint256\"\n" +
+    "\t\t\t}\n" +
+    "\t\t],\n" +
+    "\t\t\"name\": \"Approval\",\n" +
+    "\t\t\"type\": \"event\"\n" +
+    "\t},\n" +
+    "\t{\n" +
+    "\t\t\"anonymous\": false,\n" +
+    "\t\t\"inputs\": [\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"indexed\": true,\n" +
+    "\t\t\t\t\"internalType\": \"address\",\n" +
+    "\t\t\t\t\"name\": \"owner\",\n" +
+    "\t\t\t\t\"type\": \"address\"\n" +
+    "\t\t\t},\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"indexed\": true,\n" +
+    "\t\t\t\t\"internalType\": \"address\",\n" +
+    "\t\t\t\t\"name\": \"operator\",\n" +
+    "\t\t\t\t\"type\": \"address\"\n" +
+    "\t\t\t},\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"indexed\": false,\n" +
+    "\t\t\t\t\"internalType\": \"bool\",\n" +
+    "\t\t\t\t\"name\": \"approved\",\n" +
+    "\t\t\t\t\"type\": \"bool\"\n" +
+    "\t\t\t}\n" +
+    "\t\t],\n" +
+    "\t\t\"name\": \"ApprovalForAll\",\n" +
+    "\t\t\"type\": \"event\"\n" +
+    "\t},\n" +
+    "\t{\n" +
+    "\t\t\"anonymous\": false,\n" +
+    "\t\t\"inputs\": [\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"indexed\": true,\n" +
+    "\t\t\t\t\"internalType\": \"uint256\",\n" +
+    "\t\t\t\t\"name\": \"tokenId\",\n" +
+    "\t\t\t\t\"type\": \"uint256\"\n" +
+    "\t\t\t},\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"indexed\": false,\n" +
+    "\t\t\t\t\"internalType\": \"address\",\n" +
+    "\t\t\t\t\"name\": \"seller\",\n" +
+    "\t\t\t\t\"type\": \"address\"\n" +
+    "\t\t\t},\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"indexed\": false,\n" +
+    "\t\t\t\t\"internalType\": \"address\",\n" +
+    "\t\t\t\t\"name\": \"owner\",\n" +
+    "\t\t\t\t\"type\": \"address\"\n" +
+    "\t\t\t}\n" +
+    "\t\t],\n" +
+    "\t\t\"name\": \"Buy\",\n" +
+    "\t\t\"type\": \"event\"\n" +
+    "\t},\n" +
+    "\t{\n" +
+    "\t\t\"anonymous\": false,\n" +
+    "\t\t\"inputs\": [\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"indexed\": false,\n" +
+    "\t\t\t\t\"internalType\": \"uint256\",\n" +
+    "\t\t\t\t\"name\": \"listingPrice\",\n" +
+    "\t\t\t\t\"type\": \"uint256\"\n" +
+    "\t\t\t}\n" +
+    "\t\t],\n" +
+    "\t\t\"name\": \"ListingPriceUpdated\",\n" +
+    "\t\t\"type\": \"event\"\n" +
+    "\t},\n" +
+    "\t{\n" +
+    "\t\t\"anonymous\": false,\n" +
+    "\t\t\"inputs\": [\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"indexed\": true,\n" +
+    "\t\t\t\t\"internalType\": \"uint256\",\n" +
+    "\t\t\t\t\"name\": \"tokenId\",\n" +
+    "\t\t\t\t\"type\": \"uint256\"\n" +
+    "\t\t\t},\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"indexed\": false,\n" +
+    "\t\t\t\t\"internalType\": \"address\",\n" +
+    "\t\t\t\t\"name\": \"seller\",\n" +
+    "\t\t\t\t\"type\": \"address\"\n" +
+    "\t\t\t},\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"indexed\": false,\n" +
+    "\t\t\t\t\"internalType\": \"address\",\n" +
+    "\t\t\t\t\"name\": \"owner\",\n" +
+    "\t\t\t\t\"type\": \"address\"\n" +
+    "\t\t\t},\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"indexed\": false,\n" +
+    "\t\t\t\t\"internalType\": \"uint256\",\n" +
+    "\t\t\t\t\"name\": \"price\",\n" +
+    "\t\t\t\t\"type\": \"uint256\"\n" +
+    "\t\t\t},\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"indexed\": false,\n" +
+    "\t\t\t\t\"internalType\": \"bool\",\n" +
+    "\t\t\t\t\"name\": \"sold\",\n" +
+    "\t\t\t\t\"type\": \"bool\"\n" +
+    "\t\t\t}\n" +
+    "\t\t],\n" +
+    "\t\t\"name\": \"MarketItemCreated\",\n" +
+    "\t\t\"type\": \"event\"\n" +
+    "\t},\n" +
+    "\t{\n" +
+    "\t\t\"anonymous\": false,\n" +
+    "\t\t\"inputs\": [\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"indexed\": true,\n" +
+    "\t\t\t\t\"internalType\": \"uint256\",\n" +
+    "\t\t\t\t\"name\": \"tokenId\",\n" +
+    "\t\t\t\t\"type\": \"uint256\"\n" +
+    "\t\t\t},\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"indexed\": true,\n" +
+    "\t\t\t\t\"internalType\": \"uint256\",\n" +
+    "\t\t\t\t\"name\": \"price\",\n" +
+    "\t\t\t\t\"type\": \"uint256\"\n" +
+    "\t\t\t}\n" +
+    "\t\t],\n" +
+    "\t\t\"name\": \"PriceChanged\",\n" +
+    "\t\t\"type\": \"event\"\n" +
+    "\t},\n" +
+    "\t{\n" +
+    "\t\t\"anonymous\": false,\n" +
+    "\t\t\"inputs\": [\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"indexed\": true,\n" +
+    "\t\t\t\t\"internalType\": \"address\",\n" +
+    "\t\t\t\t\"name\": \"from\",\n" +
+    "\t\t\t\t\"type\": \"address\"\n" +
+    "\t\t\t},\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"indexed\": true,\n" +
+    "\t\t\t\t\"internalType\": \"address\",\n" +
+    "\t\t\t\t\"name\": \"to\",\n" +
+    "\t\t\t\t\"type\": \"address\"\n" +
+    "\t\t\t},\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"indexed\": true,\n" +
+    "\t\t\t\t\"internalType\": \"uint256\",\n" +
+    "\t\t\t\t\"name\": \"tokenId\",\n" +
+    "\t\t\t\t\"type\": \"uint256\"\n" +
+    "\t\t\t}\n" +
+    "\t\t],\n" +
+    "\t\t\"name\": \"Transfer\",\n" +
+    "\t\t\"type\": \"event\"\n" +
+    "\t},\n" +
+    "\t{\n" +
+    "\t\t\"anonymous\": false,\n" +
+    "\t\t\"inputs\": [\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"indexed\": true,\n" +
+    "\t\t\t\t\"internalType\": \"uint256\",\n" +
+    "\t\t\t\t\"name\": \"tokenId\",\n" +
+    "\t\t\t\t\"type\": \"uint256\"\n" +
+    "\t\t\t},\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"indexed\": false,\n" +
+    "\t\t\t\t\"internalType\": \"address\",\n" +
+    "\t\t\t\t\"name\": \"seller\",\n" +
+    "\t\t\t\t\"type\": \"address\"\n" +
+    "\t\t\t},\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"indexed\": false,\n" +
+    "\t\t\t\t\"internalType\": \"address\",\n" +
+    "\t\t\t\t\"name\": \"owner\",\n" +
+    "\t\t\t\t\"type\": \"address\"\n" +
+    "\t\t\t}\n" +
+    "\t\t],\n" +
+    "\t\t\"name\": \"UnListToken\",\n" +
+    "\t\t\"type\": \"event\"\n" +
+    "\t},\n" +
+    "\t{\n" +
+    "\t\t\"inputs\": [\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"internalType\": \"address\",\n" +
+    "\t\t\t\t\"name\": \"to\",\n" +
+    "\t\t\t\t\"type\": \"address\"\n" +
+    "\t\t\t},\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"internalType\": \"uint256\",\n" +
+    "\t\t\t\t\"name\": \"tokenId\",\n" +
+    "\t\t\t\t\"type\": \"uint256\"\n" +
+    "\t\t\t}\n" +
+    "\t\t],\n" +
+    "\t\t\"name\": \"approve\",\n" +
+    "\t\t\"outputs\": [],\n" +
+    "\t\t\"stateMutability\": \"nonpayable\",\n" +
+    "\t\t\"type\": \"function\"\n" +
+    "\t},\n" +
+    "\t{\n" +
+    "\t\t\"inputs\": [\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"internalType\": \"address\",\n" +
+    "\t\t\t\t\"name\": \"owner\",\n" +
+    "\t\t\t\t\"type\": \"address\"\n" +
+    "\t\t\t}\n" +
+    "\t\t],\n" +
+    "\t\t\"name\": \"balanceOf\",\n" +
+    "\t\t\"outputs\": [\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"internalType\": \"uint256\",\n" +
+    "\t\t\t\t\"name\": \"\",\n" +
+    "\t\t\t\t\"type\": \"uint256\"\n" +
+    "\t\t\t}\n" +
+    "\t\t],\n" +
+    "\t\t\"stateMutability\": \"view\",\n" +
+    "\t\t\"type\": \"function\"\n" +
+    "\t},\n" +
+    "\t{\n" +
+    "\t\t\"inputs\": [\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"internalType\": \"uint256\",\n" +
+    "\t\t\t\t\"name\": \"tokenId\",\n" +
+    "\t\t\t\t\"type\": \"uint256\"\n" +
+    "\t\t\t},\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"internalType\": \"uint256\",\n" +
+    "\t\t\t\t\"name\": \"price\",\n" +
+    "\t\t\t\t\"type\": \"uint256\"\n" +
+    "\t\t\t}\n" +
+    "\t\t],\n" +
+    "\t\t\"name\": \"changePrice\",\n" +
+    "\t\t\"outputs\": [\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"internalType\": \"bool\",\n" +
+    "\t\t\t\t\"name\": \"\",\n" +
+    "\t\t\t\t\"type\": \"bool\"\n" +
+    "\t\t\t}\n" +
+    "\t\t],\n" +
+    "\t\t\"stateMutability\": \"nonpayable\",\n" +
+    "\t\t\"type\": \"function\"\n" +
+    "\t},\n" +
+    "\t{\n" +
+    "\t\t\"inputs\": [\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"internalType\": \"uint256\",\n" +
+    "\t\t\t\t\"name\": \"tokenId\",\n" +
+    "\t\t\t\t\"type\": \"uint256\"\n" +
+    "\t\t\t}\n" +
+    "\t\t],\n" +
+    "\t\t\"name\": \"createMarketSale\",\n" +
+    "\t\t\"outputs\": [],\n" +
+    "\t\t\"stateMutability\": \"payable\",\n" +
+    "\t\t\"type\": \"function\"\n" +
+    "\t},\n" +
+    "\t{\n" +
+    "\t\t\"inputs\": [],\n" +
+    "\t\t\"name\": \"fetchItemsListed\",\n" +
+    "\t\t\"outputs\": [\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"components\": [\n" +
+    "\t\t\t\t\t{\n" +
+    "\t\t\t\t\t\t\"internalType\": \"uint256\",\n" +
+    "\t\t\t\t\t\t\"name\": \"tokenId\",\n" +
+    "\t\t\t\t\t\t\"type\": \"uint256\"\n" +
+    "\t\t\t\t\t},\n" +
+    "\t\t\t\t\t{\n" +
+    "\t\t\t\t\t\t\"internalType\": \"address payable\",\n" +
+    "\t\t\t\t\t\t\"name\": \"seller\",\n" +
+    "\t\t\t\t\t\t\"type\": \"address\"\n" +
+    "\t\t\t\t\t},\n" +
+    "\t\t\t\t\t{\n" +
+    "\t\t\t\t\t\t\"internalType\": \"address payable\",\n" +
+    "\t\t\t\t\t\t\"name\": \"owner\",\n" +
+    "\t\t\t\t\t\t\"type\": \"address\"\n" +
+    "\t\t\t\t\t},\n" +
+    "\t\t\t\t\t{\n" +
+    "\t\t\t\t\t\t\"internalType\": \"uint256\",\n" +
+    "\t\t\t\t\t\t\"name\": \"price\",\n" +
+    "\t\t\t\t\t\t\"type\": \"uint256\"\n" +
+    "\t\t\t\t\t},\n" +
+    "\t\t\t\t\t{\n" +
+    "\t\t\t\t\t\t\"internalType\": \"bool\",\n" +
+    "\t\t\t\t\t\t\"name\": \"sold\",\n" +
+    "\t\t\t\t\t\t\"type\": \"bool\"\n" +
+    "\t\t\t\t\t}\n" +
+    "\t\t\t\t],\n" +
+    "\t\t\t\t\"internalType\": \"struct NFTMarketplace.MarketItem[]\",\n" +
+    "\t\t\t\t\"name\": \"\",\n" +
+    "\t\t\t\t\"type\": \"tuple[]\"\n" +
+    "\t\t\t}\n" +
+    "\t\t],\n" +
+    "\t\t\"stateMutability\": \"view\",\n" +
+    "\t\t\"type\": \"function\"\n" +
+    "\t},\n" +
+    "\t{\n" +
+    "\t\t\"inputs\": [],\n" +
+    "\t\t\"name\": \"fetchMarketItems\",\n" +
+    "\t\t\"outputs\": [\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"components\": [\n" +
+    "\t\t\t\t\t{\n" +
+    "\t\t\t\t\t\t\"internalType\": \"uint256\",\n" +
+    "\t\t\t\t\t\t\"name\": \"tokenId\",\n" +
+    "\t\t\t\t\t\t\"type\": \"uint256\"\n" +
+    "\t\t\t\t\t},\n" +
+    "\t\t\t\t\t{\n" +
+    "\t\t\t\t\t\t\"internalType\": \"address payable\",\n" +
+    "\t\t\t\t\t\t\"name\": \"seller\",\n" +
+    "\t\t\t\t\t\t\"type\": \"address\"\n" +
+    "\t\t\t\t\t},\n" +
+    "\t\t\t\t\t{\n" +
+    "\t\t\t\t\t\t\"internalType\": \"address payable\",\n" +
+    "\t\t\t\t\t\t\"name\": \"owner\",\n" +
+    "\t\t\t\t\t\t\"type\": \"address\"\n" +
+    "\t\t\t\t\t},\n" +
+    "\t\t\t\t\t{\n" +
+    "\t\t\t\t\t\t\"internalType\": \"uint256\",\n" +
+    "\t\t\t\t\t\t\"name\": \"price\",\n" +
+    "\t\t\t\t\t\t\"type\": \"uint256\"\n" +
+    "\t\t\t\t\t},\n" +
+    "\t\t\t\t\t{\n" +
+    "\t\t\t\t\t\t\"internalType\": \"bool\",\n" +
+    "\t\t\t\t\t\t\"name\": \"sold\",\n" +
+    "\t\t\t\t\t\t\"type\": \"bool\"\n" +
+    "\t\t\t\t\t}\n" +
+    "\t\t\t\t],\n" +
+    "\t\t\t\t\"internalType\": \"struct NFTMarketplace.MarketItem[]\",\n" +
+    "\t\t\t\t\"name\": \"\",\n" +
+    "\t\t\t\t\"type\": \"tuple[]\"\n" +
+    "\t\t\t}\n" +
+    "\t\t],\n" +
+    "\t\t\"stateMutability\": \"view\",\n" +
+    "\t\t\"type\": \"function\"\n" +
+    "\t},\n" +
+    "\t{\n" +
+    "\t\t\"inputs\": [\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"internalType\": \"uint256\",\n" +
+    "\t\t\t\t\"name\": \"tokenId\",\n" +
+    "\t\t\t\t\"type\": \"uint256\"\n" +
+    "\t\t\t}\n" +
+    "\t\t],\n" +
+    "\t\t\"name\": \"getApproved\",\n" +
+    "\t\t\"outputs\": [\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"internalType\": \"address\",\n" +
+    "\t\t\t\t\"name\": \"\",\n" +
+    "\t\t\t\t\"type\": \"address\"\n" +
+    "\t\t\t}\n" +
+    "\t\t],\n" +
+    "\t\t\"stateMutability\": \"view\",\n" +
+    "\t\t\"type\": \"function\"\n" +
+    "\t},\n" +
+    "\t{\n" +
+    "\t\t\"inputs\": [],\n" +
+    "\t\t\"name\": \"getListingPrice\",\n" +
+    "\t\t\"outputs\": [\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"internalType\": \"uint256\",\n" +
+    "\t\t\t\t\"name\": \"\",\n" +
+    "\t\t\t\t\"type\": \"uint256\"\n" +
+    "\t\t\t}\n" +
+    "\t\t],\n" +
+    "\t\t\"stateMutability\": \"view\",\n" +
+    "\t\t\"type\": \"function\"\n" +
+    "\t},\n" +
+    "\t{\n" +
+    "\t\t\"inputs\": [\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"internalType\": \"address\",\n" +
+    "\t\t\t\t\"name\": \"owner\",\n" +
+    "\t\t\t\t\"type\": \"address\"\n" +
+    "\t\t\t},\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"internalType\": \"address\",\n" +
+    "\t\t\t\t\"name\": \"operator\",\n" +
+    "\t\t\t\t\"type\": \"address\"\n" +
+    "\t\t\t}\n" +
+    "\t\t],\n" +
+    "\t\t\"name\": \"isApprovedForAll\",\n" +
+    "\t\t\"outputs\": [\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"internalType\": \"bool\",\n" +
+    "\t\t\t\t\"name\": \"\",\n" +
+    "\t\t\t\t\"type\": \"bool\"\n" +
+    "\t\t\t}\n" +
+    "\t\t],\n" +
+    "\t\t\"stateMutability\": \"view\",\n" +
+    "\t\t\"type\": \"function\"\n" +
+    "\t},\n" +
+    "\t{\n" +
+    "\t\t\"inputs\": [\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"internalType\": \"uint256\",\n" +
+    "\t\t\t\t\"name\": \"tokenId\",\n" +
+    "\t\t\t\t\"type\": \"uint256\"\n" +
+    "\t\t\t},\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"internalType\": \"uint256\",\n" +
+    "\t\t\t\t\"name\": \"price\",\n" +
+    "\t\t\t\t\"type\": \"uint256\"\n" +
+    "\t\t\t}\n" +
+    "\t\t],\n" +
+    "\t\t\"name\": \"listToken\",\n" +
+    "\t\t\"outputs\": [\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"internalType\": \"bool\",\n" +
+    "\t\t\t\t\"name\": \"\",\n" +
+    "\t\t\t\t\"type\": \"bool\"\n" +
+    "\t\t\t}\n" +
+    "\t\t],\n" +
+    "\t\t\"stateMutability\": \"payable\",\n" +
+    "\t\t\"type\": \"function\"\n" +
+    "\t},\n" +
+    "\t{\n" +
+    "\t\t\"inputs\": [\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"internalType\": \"string\",\n" +
+    "\t\t\t\t\"name\": \"tokenURI\",\n" +
+    "\t\t\t\t\"type\": \"string\"\n" +
+    "\t\t\t}\n" +
+    "\t\t],\n" +
+    "\t\t\"name\": \"mintToken\",\n" +
+    "\t\t\"outputs\": [\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"internalType\": \"uint256\",\n" +
+    "\t\t\t\t\"name\": \"\",\n" +
+    "\t\t\t\t\"type\": \"uint256\"\n" +
+    "\t\t\t}\n" +
+    "\t\t],\n" +
+    "\t\t\"stateMutability\": \"nonpayable\",\n" +
+    "\t\t\"type\": \"function\"\n" +
+    "\t},\n" +
+    "\t{\n" +
+    "\t\t\"inputs\": [],\n" +
+    "\t\t\"name\": \"name\",\n" +
+    "\t\t\"outputs\": [\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"internalType\": \"string\",\n" +
+    "\t\t\t\t\"name\": \"\",\n" +
+    "\t\t\t\t\"type\": \"string\"\n" +
+    "\t\t\t}\n" +
+    "\t\t],\n" +
+    "\t\t\"stateMutability\": \"view\",\n" +
+    "\t\t\"type\": \"function\"\n" +
+    "\t},\n" +
+    "\t{\n" +
+    "\t\t\"inputs\": [\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"internalType\": \"uint256\",\n" +
+    "\t\t\t\t\"name\": \"tokenId\",\n" +
+    "\t\t\t\t\"type\": \"uint256\"\n" +
+    "\t\t\t}\n" +
+    "\t\t],\n" +
+    "\t\t\"name\": \"ownerOf\",\n" +
+    "\t\t\"outputs\": [\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"internalType\": \"address\",\n" +
+    "\t\t\t\t\"name\": \"\",\n" +
+    "\t\t\t\t\"type\": \"address\"\n" +
+    "\t\t\t}\n" +
+    "\t\t],\n" +
+    "\t\t\"stateMutability\": \"view\",\n" +
+    "\t\t\"type\": \"function\"\n" +
+    "\t},\n" +
+    "\t{\n" +
+    "\t\t\"inputs\": [\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"internalType\": \"address\",\n" +
+    "\t\t\t\t\"name\": \"from\",\n" +
+    "\t\t\t\t\"type\": \"address\"\n" +
+    "\t\t\t},\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"internalType\": \"address\",\n" +
+    "\t\t\t\t\"name\": \"to\",\n" +
+    "\t\t\t\t\"type\": \"address\"\n" +
+    "\t\t\t},\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"internalType\": \"uint256\",\n" +
+    "\t\t\t\t\"name\": \"tokenId\",\n" +
+    "\t\t\t\t\"type\": \"uint256\"\n" +
+    "\t\t\t}\n" +
+    "\t\t],\n" +
+    "\t\t\"name\": \"safeTransferFrom\",\n" +
+    "\t\t\"outputs\": [],\n" +
+    "\t\t\"stateMutability\": \"nonpayable\",\n" +
+    "\t\t\"type\": \"function\"\n" +
+    "\t},\n" +
+    "\t{\n" +
+    "\t\t\"inputs\": [\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"internalType\": \"address\",\n" +
+    "\t\t\t\t\"name\": \"from\",\n" +
+    "\t\t\t\t\"type\": \"address\"\n" +
+    "\t\t\t},\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"internalType\": \"address\",\n" +
+    "\t\t\t\t\"name\": \"to\",\n" +
+    "\t\t\t\t\"type\": \"address\"\n" +
+    "\t\t\t},\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"internalType\": \"uint256\",\n" +
+    "\t\t\t\t\"name\": \"tokenId\",\n" +
+    "\t\t\t\t\"type\": \"uint256\"\n" +
+    "\t\t\t},\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"internalType\": \"bytes\",\n" +
+    "\t\t\t\t\"name\": \"data\",\n" +
+    "\t\t\t\t\"type\": \"bytes\"\n" +
+    "\t\t\t}\n" +
+    "\t\t],\n" +
+    "\t\t\"name\": \"safeTransferFrom\",\n" +
+    "\t\t\"outputs\": [],\n" +
+    "\t\t\"stateMutability\": \"nonpayable\",\n" +
+    "\t\t\"type\": \"function\"\n" +
+    "\t},\n" +
+    "\t{\n" +
+    "\t\t\"inputs\": [\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"internalType\": \"address\",\n" +
+    "\t\t\t\t\"name\": \"operator\",\n" +
+    "\t\t\t\t\"type\": \"address\"\n" +
+    "\t\t\t},\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"internalType\": \"bool\",\n" +
+    "\t\t\t\t\"name\": \"approved\",\n" +
+    "\t\t\t\t\"type\": \"bool\"\n" +
+    "\t\t\t}\n" +
+    "\t\t],\n" +
+    "\t\t\"name\": \"setApprovalForAll\",\n" +
+    "\t\t\"outputs\": [],\n" +
+    "\t\t\"stateMutability\": \"nonpayable\",\n" +
+    "\t\t\"type\": \"function\"\n" +
+    "\t},\n" +
+    "\t{\n" +
+    "\t\t\"inputs\": [\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"internalType\": \"bytes4\",\n" +
+    "\t\t\t\t\"name\": \"interfaceId\",\n" +
+    "\t\t\t\t\"type\": \"bytes4\"\n" +
+    "\t\t\t}\n" +
+    "\t\t],\n" +
+    "\t\t\"name\": \"supportsInterface\",\n" +
+    "\t\t\"outputs\": [\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"internalType\": \"bool\",\n" +
+    "\t\t\t\t\"name\": \"\",\n" +
+    "\t\t\t\t\"type\": \"bool\"\n" +
+    "\t\t\t}\n" +
+    "\t\t],\n" +
+    "\t\t\"stateMutability\": \"view\",\n" +
+    "\t\t\"type\": \"function\"\n" +
+    "\t},\n" +
+    "\t{\n" +
+    "\t\t\"inputs\": [],\n" +
+    "\t\t\"name\": \"symbol\",\n" +
+    "\t\t\"outputs\": [\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"internalType\": \"string\",\n" +
+    "\t\t\t\t\"name\": \"\",\n" +
+    "\t\t\t\t\"type\": \"string\"\n" +
+    "\t\t\t}\n" +
+    "\t\t],\n" +
+    "\t\t\"stateMutability\": \"view\",\n" +
+    "\t\t\"type\": \"function\"\n" +
+    "\t},\n" +
+    "\t{\n" +
+    "\t\t\"inputs\": [\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"internalType\": \"uint256\",\n" +
+    "\t\t\t\t\"name\": \"tokenId\",\n" +
+    "\t\t\t\t\"type\": \"uint256\"\n" +
+    "\t\t\t}\n" +
+    "\t\t],\n" +
+    "\t\t\"name\": \"tokenURI\",\n" +
+    "\t\t\"outputs\": [\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"internalType\": \"string\",\n" +
+    "\t\t\t\t\"name\": \"\",\n" +
+    "\t\t\t\t\"type\": \"string\"\n" +
+    "\t\t\t}\n" +
+    "\t\t],\n" +
+    "\t\t\"stateMutability\": \"view\",\n" +
+    "\t\t\"type\": \"function\"\n" +
+    "\t},\n" +
+    "\t{\n" +
+    "\t\t\"inputs\": [\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"internalType\": \"address\",\n" +
+    "\t\t\t\t\"name\": \"from\",\n" +
+    "\t\t\t\t\"type\": \"address\"\n" +
+    "\t\t\t},\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"internalType\": \"address\",\n" +
+    "\t\t\t\t\"name\": \"to\",\n" +
+    "\t\t\t\t\"type\": \"address\"\n" +
+    "\t\t\t},\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"internalType\": \"uint256\",\n" +
+    "\t\t\t\t\"name\": \"tokenId\",\n" +
+    "\t\t\t\t\"type\": \"uint256\"\n" +
+    "\t\t\t}\n" +
+    "\t\t],\n" +
+    "\t\t\"name\": \"transferFrom\",\n" +
+    "\t\t\"outputs\": [],\n" +
+    "\t\t\"stateMutability\": \"nonpayable\",\n" +
+    "\t\t\"type\": \"function\"\n" +
+    "\t},\n" +
+    "\t{\n" +
+    "\t\t\"inputs\": [\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"internalType\": \"uint256\",\n" +
+    "\t\t\t\t\"name\": \"tokenId\",\n" +
+    "\t\t\t\t\"type\": \"uint256\"\n" +
+    "\t\t\t}\n" +
+    "\t\t],\n" +
+    "\t\t\"name\": \"unlistToken\",\n" +
+    "\t\t\"outputs\": [\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"internalType\": \"bool\",\n" +
+    "\t\t\t\t\"name\": \"\",\n" +
+    "\t\t\t\t\"type\": \"bool\"\n" +
+    "\t\t\t}\n" +
+    "\t\t],\n" +
+    "\t\t\"stateMutability\": \"nonpayable\",\n" +
+    "\t\t\"type\": \"function\"\n" +
+    "\t},\n" +
+    "\t{\n" +
+    "\t\t\"inputs\": [\n" +
+    "\t\t\t{\n" +
+    "\t\t\t\t\"internalType\": \"uint256\",\n" +
+    "\t\t\t\t\"name\": \"_listingPrice\",\n" +
+    "\t\t\t\t\"type\": \"uint256\"\n" +
+    "\t\t\t}\n" +
+    "\t\t],\n" +
+    "\t\t\"name\": \"updateListingPrice\",\n" +
+    "\t\t\"outputs\": [],\n" +
+    "\t\t\"stateMutability\": \"payable\",\n" +
+    "\t\t\"type\": \"function\"\n" +
+    "\t}\n" +
+    "]"
+
+
 const APIToken="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDJhNTVmYWM0NTM2MDJCQkEyNmEzRjg1NjgxYUEyMmQzMDRFMTI2NTkiLCJpc3MiOiJ3ZWIzLXN0b3JhZ2UiLCJpYXQiOjE2Nzk3NTU0ODkyNTYsIm5hbWUiOiJORlRNYXJrZXRzIn0.C2Z2A5oJcN4iK9AuuOvhmn7Efuvd5ldBSdVJz_7iPY4";
 function getAccessToken(){
   return APIToken;
 }
-var contractObj=new optimismClient.eth.Contract(JSON.parse(contractABI),0x26b2dc74aa745bd61598290c00c90e49831adc41);
+var contractObj=new optimismClient.eth.Contract(JSON.parse(contractABI),"0x26b2dc74aa745bd61598290c00c90e49831adc41");
 function markStorageClient(){
     return new Web3Storage({token:getAccessToken()})
 }
@@ -29,6 +698,12 @@ function MyHead(){
     const [mintNFTInfo,setmintNFTInfo]=useState(null);
     const [currentAccount, setCurrentAccount] = useState(null);
    async  function mintNFT(){
+       console.log(currentAccount)
+       if(!connectState){
+           alert("请先进行登录");
+           setWalletState(true);
+           setUploadState(false);
+       }
         const fileInput = document.querySelector('input[type="file"]').files
        if (fileInput.length!=1){
            alert("only support upload one file");
@@ -44,7 +719,7 @@ function MyHead(){
         const uid = await storageClient.put(fileInput);
         //convertToHTTPS
        const url="https://"+uid+".ipfs.w3s.link/"+fileInput[0].name;
-       contractObj.methods.mintToken(url).send({from:currentAccount}).on('receipt', (data) => {
+       await contractObj.methods.mintToken(url).send({from:currentAccount}).on('receipt', (data) => {
            console.log(data)
        })
     }
@@ -84,6 +759,7 @@ function MyHead(){
         }
         try{
             const accounts=await ethereum.request({method:'eth_requestAccounts'});
+            await ethereum.enable();
             setCurrentAccount(accounts[0]);
         }catch(err){
             alert("connect failed");
